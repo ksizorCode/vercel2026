@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ParkAtlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#12121a; --card:#191924; --border:#26263a;
+  --accent:#ff4d6d; --gold:#ffd166; --green:#06d6a0; --blue:#60a5fa;
+  --text:#ededf5; --muted:#6868a0; --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;padding-bottom:74px;overscroll-behavior:none}
+
+/* HEADER */
+#header{position:sticky;top:0;z-index:90;background:linear-gradient(160deg,#0e0e1c,#170a2c);border-bottom:1px solid var(--border);padding:14px 14px 10px}
+.hrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.85rem;letter-spacing:3px;background:linear-gradient(90deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+#btnAdd{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:1.7rem;cursor:pointer;box-shadow:0 0 20px rgba(255,77,109,.45);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+#btnAdd:active{transform:scale(.9)}
+
+.sbox{position:relative;margin-bottom:9px}
+.sbox input{width:100%;padding:9px 14px 9px 38px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
+.sbox input:focus{border-color:var(--accent)}
+.sbox .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+
+.scroll-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px}
+.scroll-row::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:5px 13px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;flex-shrink:0}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+#parkBar{display:flex;gap:7px;overflow-x:auto;padding:9px 14px 0}
+#parkBar::-webkit-scrollbar{display:none}
+.ptab{white-space:nowrap;padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.76rem;font-weight:600;cursor:pointer;transition:all .15s;flex-shrink:0}
+.ptab.on{border-color:var(--gold);color:var(--gold);background:rgba(255,209,102,.07)}
+
+#stats{padding:7px 15px 0;font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:10px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;box-shadow:0 0 6px var(--green)}
+.sync-dot.loading{background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+#grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;padding:10px 11px 0}
+
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;cursor:pointer;position:relative;transition:transform .12s}
+.card:active{transform:scale(.96)}
+.cimg{width:100%;height:118px;position:relative;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:2.8rem;overflow:hidden}
+.cimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cbadge{position:absolute;top:7px;left:7px;z-index:2;background:rgba(0,0,0,.72);color:var(--gold);font-size:.65rem;padding:2px 8px;border-radius:99px;font-weight:700;backdrop-filter:blur(6px)}
+.cfav{position:absolute;top:7px;right:7px;z-index:2;background:rgba(0,0,0,.6);border:none;border-radius:50%;width:27px;height:27px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:transform .15s}
+.cfav:active{transform:scale(1.35)}
+.cbody{padding:9px 10px}
+.cname{font-weight:700;font-size:.86rem;line-height:1.2;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cpark{font-size:.71rem;color:var(--muted);margin-bottom:5px}
+.ctags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:.64rem;font-weight:700;padding:2px 6px;border-radius:4px}
+.tThrill{background:rgba(255,77,109,.15);color:var(--accent)}
+.tFamily{background:rgba(6,214,160,.15);color:var(--green)}
+.tShow{background:rgba(96,165,250,.15);color:var(--blue)}
+.tKids{background:rgba(255,209,102,.15);color:var(--gold)}
+
+.empty{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)}
+.empty p{margin-top:10px}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:none;align-items:flex-end;backdrop-filter:blur(5px)}
+.overlay.open{display:flex}
+.sheet{background:var(--surface);border-radius:22px 22px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:18px 16px 40px;border:1px solid var(--border);animation:up .24s ease}
+@keyframes up{from{transform:translateY(100%)}}
+.handle{width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px}
+
+.dimg{width:100%;height:195px;border-radius:12px;background:var(--card);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:5rem;margin-bottom:14px}
+.dimg img{width:100%;height:100%;object-fit:cover}
+.dtitle{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:1px;line-height:1.05}
+.dpark{color:var(--gold);font-size:.86rem;font-weight:600;margin:4px 0 10px}
+.ddesc{color:var(--muted);font-size:.87rem;line-height:1.6;margin-bottom:12px}
+.dmeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.dmeta-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.dlabel{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.dval{font-size:.92rem;font-weight:700;margin-top:2px}
+.dactions{display:flex;gap:8px;margin-bottom:8px}
+
+.fh2{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:1px;color:var(--gold);margin-bottom:12px}
+.note{font-size:.76rem;color:#3d8a60;background:rgba(6,214,160,.07);border:1px solid rgba(6,214,160,.18);border-radius:8px;padding:7px 11px;margin-bottom:13px}
+.fg{margin-bottom:11px}
+.fg label{display:block;font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:.88rem;outline:none;font-family:inherit;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent)}
+.fg select option{background:var(--card)}
+.fg textarea{resize:vertical}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.btn-p,.btn-s,.btn-d,.btn-g{width:100%;padding:13px;border-radius:11px;font-size:.92rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:7px;border:none;transition:opacity .15s}
+.btn-p{background:linear-gradient(135deg,var(--accent),#ff7a92);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:1px}
+.btn-s{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-d{background:transparent;border:1px solid var(--accent);color:var(--accent)}
+.btn-g{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.btn-p:active,.btn-s:active,.btn-d:active,.btn-g:active{opacity:.75}
+.btn-p:disabled{opacity:.5;cursor:not-allowed}
+
+#nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:9px 0 16px;z-index:100}
+.nbtn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.61rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:0 14px;transition:color .15s}
+.nbtn .ni{font-size:1.22rem}
+.nbtn.on{color:var(--accent)}
+
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);color:#000;font-weight:700;padding:9px 20px;border-radius:99px;font-size:.84rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:300;white-space:nowrap}
+#toast.show{opacity:1}
+#toast.ok{background:var(--green)}
+#toast.err{background:var(--accent);color:#fff}
+
+#loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:14px;color:var(--muted);font-size:.9rem}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="hrow">
+    <div class="logo">🎢 ParkAtlas</div>
+    <button id="btnAdd" onclick="openAdd()">＋</button>
+  </div>
+  <div class="sbox">
+    <span class="ico">🔍</span>
+    <input id="searchInput" type="text" placeholder="Buscar atracción o parque…" oninput="render()">
+  </div>
+  <div class="scroll-row" id="catBar"></div>
+</div>
+
+<div id="parkBar"></div>
+<div id="stats"></div>
+<div id="loader"><div class="spin"></div>Cargando atracciones…</div>
+<div id="grid" style="display:none"></div>
+
+<!-- DETAIL -->
+<div class="overlay" id="detailOverlay" onclick="bgClose(event,'detailOverlay')">
+  <div class="sheet" id="detailSheet"></div>
+</div>
+
+<!-- FORM -->
+<div class="overlay" id="formOverlay" onclick="bgClose(event,'formOverlay')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="fh2" id="formTitle">➕ Nueva Atracción</div>
+    <div class="note" id="formNote">☁️ Se guardará en el JSON del repositorio — visible para todos.</div>
+    <form id="attrForm" onsubmit="saveForm(event)">
+      <div class="fg"><label>Nombre *</label><input id="f_name" type="text" required placeholder="Nombre de la atracción"></div>
+      <div class="frow">
+        <div class="fg"><label>Parque *</label><select id="f_park" required></select></div>
+        <div class="fg"><label>País</label>
+          <select id="f_country">
+            <option>Francia</option><option>España</option><option>USA</option>
+            <option>Alemania</option><option>Dinamarca</option><option>Países Bajos</option><option>Bélgica</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Categoría</label>
+          <select id="f_cat"><option>Montaña rusa</option><option>Agua</option><option>Show</option><option>Familia</option><option>Niños</option><option>Dark ride</option></select>
+        </div>
+        <div class="fg"><label>Emoción</label>
+          <select id="f_thrill"><option>Thrill</option><option>Family</option><option>Kids</option><option>Show</option></select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Altura mín. (cm)</label><input id="f_height" type="number" min="0" max="200" placeholder="0 = sin límite"></div>
+        <div class="fg"><label>Duración (min)</label><input id="f_duration" type="number" min="1" max="120"></div>
+      </div>
+      <div class="fg"><label>URL Foto</label><input id="f_photo" type="url" placeholder="https://…"></div>
+      <div class="fg"><label>Descripción</label><textarea id="f_desc" rows="3" placeholder="Describe la atracción…"></textarea></div>
+      <input type="hidden" id="f_id">
+      <button type="submit" class="btn-p" id="fSubmit">💾 GUARDAR</button>
+      <button type="button" class="btn-d" id="fDeleteBtn" style="display:none" onclick="deleteItem()">🗑️ Eliminar</button>
+      <button type="button" class="btn-s" onclick="closeModal('formOverlay')">Cancelar</button>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<nav id="nav">
+  <button class="nbtn on" data-view="all" onclick="setView(this)"><span class="ni">🎡</span>Todas</button>
+  <button class="nbtn" data-view="fav" onclick="setView(this)"><span class="ni">❤️</span>Favoritas</button>
+  <button class="nbtn" data-view="map" onclick="setView(this)"><span class="ni">🗺️</span>Parques</button>
+</nav>
+
+<script>
+const API = '/api/atracciones';
+
+const CATS  = ['Todas','Montaña rusa','Agua','Show','Familia','Niños','Dark ride'];
+const PARKS = ['Todos','Disneyland Paris','Walt Disney Studios',
+               'Universal Studios Hollywood','Universal Orlando',
+               'Puy du Fou Francia','Puy du Fou España','Futuroscope',
+               'Europa-Park','Tivoli Gardens','Efteling','Phantasialand'];
+const CE = {'Montaña rusa':'🎢','Agua':'💧','Show':'🎭','Familia':'👨‍👩‍👧','Niños':'🎈','Dark ride':'🌑'};
+const ce = c => CE[c] || '🎡';
+
+let data = [], activeCat='Todas', activePark='Todos', activeView='all', editId=null;
+let favs = JSON.parse(localStorage.getItem('pa_favs')||'[]');
+
+/* ── API CALLS ── */
+async function apiGet() {
+  const r = await fetch(API);
+  if (!r.ok) throw new Error('Error cargando datos');
+  return r.json();
+}
+async function apiPost(item) {
+  const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(item) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function apiPut(item) {
+  const r = await fetch(API, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(item) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function apiDelete(id) {
+  const r = await fetch(`${API}?id=${id}`, { method:'DELETE' });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+/* ── INIT ── */
+async function init() {
+  try {
+    data = await apiGet();
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('grid').style.display   = 'grid';
+    buildBars();
+    render();
+  } catch(e) {
+    document.getElementById('loader').innerHTML =
+      `<div style="font-size:2rem">😞</div><p>${e.message}</p><p style="font-size:.75rem;margin-top:6px;color:var(--muted)">Revisa la consola y las env vars de Vercel</p>`;
+  }
+}
+
+/* ── BARS ── */
+function buildBars() {
+  document.getElementById('catBar').innerHTML = CATS.map(c =>
+    `<button class="chip ${activeCat===c?'on':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+  document.getElementById('parkBar').innerHTML = PARKS.map(p =>
+    `<button class="ptab ${activePark===p?'on':''}" onclick="setPark('${p}')">${p}</button>`
+  ).join('');
+  document.getElementById('f_park').innerHTML = PARKS.slice(1).map(p=>`<option>${p}</option>`).join('');
+}
+function setCat(c){activeCat=c;buildBars();render()}
+function setPark(p){activePark=p;buildBars();render()}
+function setView(btn){
+  activeView=btn.dataset.view;
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');render();
+}
+
+/* ── FILTER + RENDER ── */
+function filtered(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  return data.filter(a=>{
+    if(activeView==='fav'&&!favs.includes(a.id))return false;
+    if(activePark!=='Todos'&&a.park!==activePark)return false;
+    if(activeCat!=='Todas'&&a.cat!==activeCat)return false;
+    if(q&&!a.name.toLowerCase().includes(q)&&!a.park.toLowerCase().includes(q)&&!(a.desc||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+}
+
+function render(){
+  const dot = document.querySelector('.sync-dot');
+  const list=filtered();
+  document.getElementById('stats').innerHTML=
+    `<span>${list.length} atracciones · ${data.length} total</span><span class="sync-dot${dot&&dot.classList.contains('loading')?' loading':''}"></span>`;
+  const grid=document.getElementById('grid');
+  if(!list.length){grid.innerHTML=`<div class="empty"><div style="font-size:3rem">🎠</div><p>Sin resultados</p></div>`;return;}
+  grid.innerHTML=list.map(a=>`
+    <div class="card" onclick="openDetail(${a.id})">
+      <div class="cimg">
+        ${a.photo?`<img src="${a.photo}" alt="${a.name}" onerror="this.style.display='none'">`:''}
+        <span style="z-index:1;position:relative">${ce(a.cat)}</span>
+        <span class="cbadge">${a.cat}</span>
+        <button class="cfav" onclick="toggleFav(${a.id},event)">${favs.includes(a.id)?'❤️':'🤍'}</button>
+      </div>
+      <div class="cbody">
+        <div class="cname">${a.name}</div>
+        <div class="cpark">📍 ${a.park}</div>
+        <div class="ctags">
+          <span class="tag t${a.thrill}">${a.thrill}</span>
+          ${a.height>0?`<span class="tag tThrill">📏${a.height}cm`:''}
+          ${a.duration>0?`<span class="tag tFamily">⏱${a.duration}m</span>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── DETAIL ── */
+function openDetail(id){
+  const a=data.find(x=>x.id===id);if(!a)return;
+  document.getElementById('detailSheet').innerHTML=`
+    <div class="handle"></div>
+    <div class="dimg">${a.photo?`<img src="${a.photo}" alt="${a.name}" onerror="this.style.display='none'">`:''}${a.photo?'':ce(a.cat)}</div>
+    <div class="dtitle">${a.name}</div>
+    <div class="dpark">📍 ${a.park} · ${a.country||''}</div>
+    <p class="ddesc">${a.desc||'Sin descripción.'}</p>
+    <div class="dmeta">
+      <div class="dmeta-item"><div class="dlabel">Categoría</div><div class="dval">${a.cat}</div></div>
+      <div class="dmeta-item"><div class="dlabel">Emoción</div><div class="dval">${a.thrill}</div></div>
+      ${a.height>0?`<div class="dmeta-item"><div class="dlabel">Altura mín.</div><div class="dval">${a.height} cm</div></div>`:''}
+      ${a.duration>0?`<div class="dmeta-item"><div class="dlabel">Duración</div><div class="dval">${a.duration} min</div></div>`:''}
+    </div>
+    <div class="dactions">
+      <button class="btn-g" style="flex:1" onclick="openEdit(${id})">✏️ Editar</button>
+      <button class="btn-d" style="flex:1" onclick="confirmDelete(${id})">🗑️ Borrar</button>
+    </div>
+    <button class="btn-p" onclick="toggleFav(${id});closeModal('detailOverlay')">${favs.includes(id)?'💔 Quitar de favoritas':'❤️ Añadir a favoritas'}</button>
+  `;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+/* ── FAVS ── */
+function toggleFav(id,e){
+  if(e)e.stopPropagation();
+  favs=favs.includes(id)?favs.filter(f=>f!==id):[...favs,id];
+  localStorage.setItem('pa_favs',JSON.stringify(favs));
+  render();
+}
+
+/* ── CRUD ── */
+function openAdd(){
+  editId=null;
+  document.getElementById('attrForm').reset();
+  document.getElementById('f_id').value='';
+  document.getElementById('formTitle').textContent='➕ Nueva Atracción';
+  document.getElementById('formNote').textContent='☁️ Se guardará en el JSON del repositorio — visible para todos.';
+  document.getElementById('fDeleteBtn').style.display='none';
+  document.getElementById('formOverlay').classList.add('open');
+}
+function openEdit(id){
+  const a=data.find(x=>x.id===id);if(!a)return;
+  editId=id;
+  document.getElementById('formTitle').textContent='✏️ Editar Atracción';
+  document.getElementById('formNote').textContent='☁️ Los cambios se guardarán en el JSON — visibles para todos.';
+  document.getElementById('f_name').value=a.name;
+  document.getElementById('f_park').value=a.park;
+  document.getElementById('f_country').value=a.country||'Francia';
+  document.getElementById('f_cat').value=a.cat;
+  document.getElementById('f_thrill').value=a.thrill;
+  document.getElementById('f_height').value=a.height||'';
+  document.getElementById('f_duration').value=a.duration||'';
+  document.getElementById('f_photo').value=a.photo||'';
+  document.getElementById('f_desc').value=a.desc||'';
+  document.getElementById('f_id').value=id;
+  document.getElementById('fDeleteBtn').style.display='block';
+  closeModal('detailOverlay');
+  document.getElementById('formOverlay').classList.add('open');
+}
+
+async function saveForm(e){
+  e.preventDefault();
+  const btn=document.getElementById('fSubmit');
+  btn.disabled=true; btn.textContent='⏳ GUARDANDO…';
+  setSyncLoading(true);
+  const item={
+    name:document.getElementById('f_name').value.trim(),
+    park:document.getElementById('f_park').value,
+    country:document.getElementById('f_country').value,
+    cat:document.getElementById('f_cat').value,
+    thrill:document.getElementById('f_thrill').value,
+    height:parseInt(document.getElementById('f_height').value)||0,
+    duration:parseInt(document.getElementById('f_duration').value)||0,
+    photo:document.getElementById('f_photo').value.trim(),
+    desc:document.getElementById('f_desc').value.trim(),
+  };
+  try {
+    if(editId){
+      item.id=editId;
+      const updated=await apiPut(item);
+      const idx=data.findIndex(x=>x.id===editId);
+      data[idx]=updated;
+      showToast('✏️ Actualizado','ok');
+    } else {
+      const created=await apiPost(item);
+      data.unshift(created);
+      showToast('✅ Añadido — guardado en JSON','ok');
+    }
+    closeModal('formOverlay');
+    render();
+  } catch(err){
+    showToast('❌ Error: '+err.message,'err');
+  }
+  btn.disabled=false; btn.textContent='💾 GUARDAR';
+  setSyncLoading(false);
+}
+
+function deleteItem(){confirmDelete(parseInt(document.getElementById('f_id').value),true)}
+
+async function confirmDelete(id,fromForm=false){
+  if(!confirm('¿Eliminar esta atracción del JSON? Será visible para todos.'))return;
+  setSyncLoading(true);
+  try {
+    await apiDelete(id);
+    data=data.filter(a=>a.id!==id);
+    if(fromForm)closeModal('formOverlay');
+    closeModal('detailOverlay');
+    render();
+    showToast('🗑️ Eliminada del JSON','ok');
+  } catch(err){
+    showToast('❌ '+err.message,'err');
+  }
+  setSyncLoading(false);
+}
+
+/* ── UTILS ── */
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function bgClose(e,id){if(e.target.id===id)closeModal(id)}
+function setSyncLoading(on){
+  const d=document.querySelector('.sync-dot');
+  if(d)d.classList.toggle('loading',on);
+}
+let tt;
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show '+type;
+  clearTimeout(tt);tt=setTimeout(()=>t.className='',2800);
+}
+
+init();
+</script>
+</body>
+</html>
