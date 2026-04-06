@@ -2,682 +2,670 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParkAtlas — Atracciones</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ParkAtlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --card: #1a1a24;
-    --border: #2a2a3a;
-    --accent: #ff4d6d;
-    --accent2: #ffd166;
-    --text: #f0f0f5;
-    --muted: #7070a0;
-    --green: #06d6a0;
-    --blue: #118ab2;
-    --radius: 16px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    padding-bottom: 80px;
-  }
-  /* HEADER */
-  header {
-    background: linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 100%);
-    padding: 20px 16px 16px;
-    position: sticky; top: 0; z-index: 100;
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-  }
-  .header-top {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem; letter-spacing: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .add-btn {
-    background: var(--accent); color: #fff;
-    border: none; border-radius: 50%; width: 44px; height: 44px;
-    font-size: 1.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 20px rgba(255,77,109,0.4);
-    transition: transform .15s, box-shadow .15s;
-  }
-  .add-btn:active { transform: scale(.92); }
-  /* SEARCH */
-  .search-wrap { position: relative; margin-bottom: 10px; }
-  .search-wrap input {
-    width: 100%; padding: 11px 16px 11px 42px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; color: var(--text); font-size: .95rem;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-icon {
-    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    color: var(--muted); font-size: 1rem; pointer-events: none;
-  }
-  /* FILTERS */
-  .filters-scroll {
-    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-  }
-  .filters-scroll::-webkit-scrollbar { display: none; }
-  .chip {
-    white-space: nowrap; padding: 6px 14px;
-    border-radius: 99px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--muted);
-    font-size: .82rem; cursor: pointer; font-weight: 500;
-    transition: all .15s;
-  }
-  .chip.active {
-    background: var(--accent); color: #fff; border-color: var(--accent);
-  }
-  /* PARK TABS */
-  .park-tabs {
-    display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px 0;
-  }
-  .park-tabs::-webkit-scrollbar { display: none; }
-  .park-tab {
-    white-space: nowrap; padding: 6px 14px;
-    border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--muted);
-    font-size: .8rem; cursor: pointer; font-weight: 500;
-    transition: all .15s;
-  }
-  .park-tab.active {
-    border-color: var(--accent2); color: var(--accent2); background: rgba(255,209,102,.08);
-  }
-  /* STATS BAR */
-  .stats { padding: 10px 16px; color: var(--muted); font-size: .83rem; }
-  /* GRID */
-  .grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; padding: 0 12px;
-  }
-  @media(max-width:380px) { .grid { grid-template-columns: 1fr; } }
-  /* CARD */
-  .card {
-    background: var(--card); border-radius: var(--radius);
-    border: 1px solid var(--border); overflow: hidden;
-    cursor: pointer; transition: transform .15s, box-shadow .15s;
-    position: relative;
-  }
-  .card:active { transform: scale(.97); }
-  .card-img {
-    width: 100%; height: 130px; object-fit: cover;
-    background: var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 3rem;
-  }
-  .card-img img { width: 100%; height: 100%; object-fit: cover; }
-  .card-badge {
-    position: absolute; top: 8px; left: 8px;
-    background: rgba(0,0,0,.7); color: var(--accent2);
-    font-size: .7rem; padding: 3px 8px; border-radius: 99px;
-    font-weight: 700; letter-spacing: .5px; backdrop-filter: blur(4px);
-  }
-  .card-fav {
-    position: absolute; top: 8px; right: 8px;
-    background: rgba(0,0,0,.6); border: none; border-radius: 50%;
-    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: .9rem; backdrop-filter: blur(4px);
-    transition: transform .15s;
-  }
-  .card-fav:active { transform: scale(1.3); }
-  .card-body { padding: 10px; }
-  .card-name {
-    font-weight: 700; font-size: .9rem; margin-bottom: 3px;
-    line-height: 1.2;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .card-park { font-size: .75rem; color: var(--muted); margin-bottom: 6px; }
-  .card-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-  .tag {
-    font-size: .68rem; padding: 2px 7px; border-radius: 4px;
-    font-weight: 600;
-  }
-  .tag-thrill { background: rgba(255,77,109,.15); color: var(--accent); }
-  .tag-family { background: rgba(6,214,160,.15); color: var(--green); }
-  .tag-show { background: rgba(17,138,178,.15); color: var(--blue); }
-  .tag-water { background: rgba(118,148,255,.15); color: #7694ff; }
-  .tag-kids { background: rgba(255,209,102,.15); color: var(--accent2); }
-  .tag-dark { background: rgba(180,100,255,.15); color: #b464ff; }
-  /* EMPTY */
-  .empty {
-    text-align: center; padding: 60px 16px; color: var(--muted);
-    grid-column: 1/-1;
-  }
-  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-  /* FAB */
-  /* MODAL OVERLAY */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.85);
-    z-index: 200; display: none; align-items: flex-end;
-    backdrop-filter: blur(4px);
-  }
-  .overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border-radius: 24px 24px 0 0;
-    width: 100%; max-height: 90vh; overflow-y: auto;
-    padding: 20px 16px 40px; border: 1px solid var(--border);
-    animation: slideUp .25s ease;
-  }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal-handle {
-    width: 40px; height: 4px; background: var(--border);
-    border-radius: 99px; margin: 0 auto 20px;
-  }
-  .modal h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem; letter-spacing: 1px; margin-bottom: 16px;
-    color: var(--accent2);
-  }
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: .82rem; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 11px 14px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; color: var(--text); font-size: .92rem;
-    outline: none; font-family: inherit;
-    transition: border-color .2s;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: var(--accent);
-  }
-  .form-group select option { background: var(--card); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .btn-primary {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, var(--accent), #ff6b8a);
-    border: none; border-radius: 12px; color: #fff;
-    font-size: 1rem; font-weight: 700; cursor: pointer;
-    font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; font-size: 1.1rem;
-    transition: opacity .15s;
-    margin-top: 8px;
-  }
-  .btn-primary:active { opacity: .85; }
-  .btn-danger {
-    width: 100%; padding: 12px;
-    background: transparent; border: 1px solid var(--accent);
-    border-radius: 12px; color: var(--accent);
-    font-size: .95rem; cursor: pointer; margin-top: 8px;
-    transition: background .15s;
-  }
-  .btn-danger:active { background: rgba(255,77,109,.1); }
-  /* DETAIL MODAL */
-  .detail-img {
-    width: 100%; height: 200px; object-fit: cover; border-radius: 12px;
-    margin-bottom: 16px; background: var(--card);
-    display: flex; align-items: center; justify-content: center; font-size: 5rem;
-  }
-  .detail-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
-  .detail-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem; letter-spacing: 1px; line-height: 1.1;
-  }
-  .detail-park { color: var(--accent2); font-size: .9rem; font-weight: 600; margin: 4px 0 12px; }
-  .detail-desc { color: var(--muted); font-size: .9rem; line-height: 1.6; margin-bottom: 14px; }
-  .detail-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .meta-item {
-    background: var(--card); border-radius: 10px; padding: 10px 12px;
-    border: 1px solid var(--border);
-  }
-  .meta-label { font-size: .72rem; color: var(--muted); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
-  .meta-val { font-size: .95rem; font-weight: 700; margin-top: 2px; }
-  .action-row { display: flex; gap: 10px; margin-top: 12px; }
-  .btn-edit, .btn-del {
-    flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
-    font-size: .9rem; font-weight: 700; cursor: pointer; font-family: inherit;
-    transition: all .15s;
-  }
-  .btn-edit { background: var(--card); color: var(--text); }
-  .btn-del { background: transparent; color: var(--accent); border-color: var(--accent); }
-  .close-btn {
-    position: absolute; top: 16px; right: 16px;
-    background: var(--card); border: 1px solid var(--border);
-    color: var(--muted); border-radius: 50%; width: 32px; height: 32px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 1rem;
-  }
-  /* BOTTOM NAV */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--surface); border-top: 1px solid var(--border);
-    display: flex; justify-content: space-around; padding: 10px 0 16px;
-    z-index: 150;
-  }
-  .nav-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: .65rem; font-weight: 600; letter-spacing: .5px;
-    text-transform: uppercase; padding: 0 12px;
-    transition: color .15s;
-  }
-  .nav-btn.active { color: var(--accent); }
-  .nav-btn .icon { font-size: 1.3rem; }
-  /* TOAST */
-  .toast {
-    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-    background: var(--green); color: #000; padding: 10px 20px;
-    border-radius: 99px; font-weight: 700; font-size: .88rem;
-    opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 999;
-  }
-  .toast.show { opacity: 1; }
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --card: #191924;
+  --border: #26263a;
+  --accent: #ff4d6d;
+  --gold: #ffd166;
+  --green: #06d6a0;
+  --blue: #60a5fa;
+  --text: #ededf5;
+  --muted: #6868a0;
+  --r: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  padding-bottom: 74px;
+  overscroll-behavior: none;
+}
+
+/* ── HEADER ── */
+#header {
+  position: sticky; top: 0; z-index: 90;
+  background: linear-gradient(160deg, #0e0e1c 0%, #170a2c 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 14px 10px;
+}
+.hrow {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 11px;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.85rem; letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.logo span { font-size: 1.3rem; -webkit-text-fill-color: initial; margin-right: 4px; }
+
+#btnAdd {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--accent); border: none; color: #fff;
+  font-size: 1.7rem; line-height: 1; cursor: pointer;
+  box-shadow: 0 0 20px rgba(255,77,109,.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s;
+}
+#btnAdd:active { transform: scale(.9); }
+
+/* search */
+.sbox { position: relative; margin-bottom: 9px; }
+.sbox input {
+  width: 100%; padding: 9px 14px 9px 38px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: .9rem;
+  outline: none; transition: border-color .2s;
+}
+.sbox input:focus { border-color: var(--accent); }
+.sbox .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: .95rem; }
+
+/* chips */
+.scroll-row { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
+.scroll-row::-webkit-scrollbar { display: none; }
+.chip {
+  white-space: nowrap; padding: 5px 13px;
+  border-radius: 99px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  font-size: .78rem; font-weight: 600; cursor: pointer;
+  transition: all .15s; flex-shrink: 0;
+}
+.chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* park tabs */
+#parkBar { display: flex; gap: 7px; overflow-x: auto; padding: 9px 14px 0; }
+#parkBar::-webkit-scrollbar { display: none; }
+.ptab {
+  white-space: nowrap; padding: 5px 12px;
+  border-radius: 7px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted);
+  font-size: .76rem; font-weight: 600; cursor: pointer;
+  transition: all .15s; flex-shrink: 0;
+}
+.ptab.on { border-color: var(--gold); color: var(--gold); background: rgba(255,209,102,.07); }
+
+/* stats */
+#stats {
+  padding: 7px 15px 0;
+  font-size: .78rem; color: var(--muted);
+  display: flex; align-items: center; gap: 10px;
+}
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); margin-left: auto;
+  box-shadow: 0 0 6px var(--green);
+}
+
+/* ── GRID ── */
+#grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 11px;
+  padding: 10px 11px 0;
+}
+
+/* card */
+.card {
+  background: var(--card); border-radius: var(--r);
+  border: 1px solid var(--border); overflow: hidden;
+  cursor: pointer; position: relative;
+  transition: transform .12s;
+}
+.card:active { transform: scale(.96); }
+
+.cimg {
+  width: 100%; height: 118px; position: relative;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem; overflow: hidden;
+}
+.cimg img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.cbadge {
+  position: absolute; top: 7px; left: 7px; z-index: 2;
+  background: rgba(0,0,0,.72); color: var(--gold);
+  font-size: .65rem; padding: 2px 8px; border-radius: 99px;
+  font-weight: 700; letter-spacing: .3px;
+  backdrop-filter: blur(6px);
+}
+.cfav {
+  position: absolute; top: 7px; right: 7px; z-index: 2;
+  background: rgba(0,0,0,.6); border: none; border-radius: 50%;
+  width: 27px; height: 27px; cursor: pointer; font-size: .82rem;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: transform .15s;
+}
+.cfav:active { transform: scale(1.35); }
+
+.cbody { padding: 9px 10px; }
+.cname {
+  font-weight: 700; font-size: .86rem; line-height: 1.2; margin-bottom: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cpark { font-size: .71rem; color: var(--muted); margin-bottom: 5px; }
+.ctags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag {
+  font-size: .64rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+}
+.tThrill  { background: rgba(255,77,109,.15); color: var(--accent); }
+.tFamily  { background: rgba(6,214,160,.15);  color: var(--green); }
+.tShow    { background: rgba(96,165,250,.15);  color: var(--blue); }
+.tKids    { background: rgba(255,209,102,.15); color: var(--gold); }
+
+/* empty */
+.empty {
+  grid-column: 1/-1; text-align: center;
+  padding: 60px 0; color: var(--muted);
+}
+.empty p { margin-top: 10px; }
+
+/* ── MODALS ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.82);
+  z-index: 200; display: none; align-items: flex-end;
+  backdrop-filter: blur(5px);
+}
+.overlay.open { display: flex; }
+
+.sheet {
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  width: 100%; max-height: 92vh; overflow-y: auto;
+  padding: 18px 16px 40px;
+  border: 1px solid var(--border);
+  animation: up .24s ease;
+}
+@keyframes up { from { transform: translateY(100%); } }
+
+.handle {
+  width: 38px; height: 4px;
+  background: var(--border); border-radius: 99px;
+  margin: 0 auto 18px;
+}
+
+/* detail */
+.dimg {
+  width: 100%; height: 195px; border-radius: 12px;
+  background: var(--card); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem; margin-bottom: 14px;
+}
+.dimg img { width: 100%; height: 100%; object-fit: cover; }
+.dtitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.75rem; letter-spacing: 1px; line-height: 1.05;
+}
+.dpark { color: var(--gold); font-size: .86rem; font-weight: 600; margin: 4px 0 10px; }
+.ddesc { color: var(--muted); font-size: .87rem; line-height: 1.6; margin-bottom: 12px; }
+.dmeta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.dmeta-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 9px 11px;
+}
+.dlabel { font-size: .68rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+.dval { font-size: .92rem; font-weight: 700; margin-top: 2px; }
+.dactions { display: flex; gap: 8px; margin-bottom: 8px; }
+
+/* form */
+.fh2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.55rem; letter-spacing: 1px; color: var(--gold); margin-bottom: 12px;
+}
+.note {
+  font-size: .76rem; color: #3d8a60;
+  background: rgba(6,214,160,.07); border: 1px solid rgba(6,214,160,.18);
+  border-radius: 8px; padding: 7px 11px; margin-bottom: 13px;
+}
+.fg { margin-bottom: 11px; }
+.fg label { display: block; font-size: .78rem; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.fg input, .fg select, .fg textarea {
+  width: 100%; padding: 9px 12px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; color: var(--text); font-size: .88rem;
+  outline: none; font-family: inherit;
+  transition: border-color .2s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--accent); }
+.fg select option { background: var(--card); }
+.fg textarea { resize: vertical; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+/* buttons */
+.btn-p, .btn-s, .btn-d, .btn-g {
+  width: 100%; padding: 13px;
+  border-radius: 11px; font-size: .92rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; margin-top: 7px;
+  border: none; transition: opacity .15s;
+}
+.btn-p { background: linear-gradient(135deg, var(--accent), #ff7a92); color: #fff; font-family: 'Bebas Neue',sans-serif; font-size: 1.05rem; letter-spacing: 1px; }
+.btn-s { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.btn-d { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+.btn-g { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+.btn-p:active, .btn-s:active, .btn-d:active, .btn-g:active { opacity: .75; }
+
+/* ── BOTTOM NAV ── */
+#nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around;
+  padding: 9px 0 16px; z-index: 100;
+}
+.nbtn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: .61rem; font-weight: 700; letter-spacing: .4px;
+  text-transform: uppercase; padding: 0 14px;
+  transition: color .15s;
+}
+.nbtn .ni { font-size: 1.22rem; }
+.nbtn.on { color: var(--accent); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #000; font-weight: 700;
+  padding: 9px 20px; border-radius: 99px; font-size: .84rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s; z-index: 300; white-space: nowrap;
+}
+#toast.show { opacity: 1; }
+
+/* spinner */
+#loader {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 60vh; gap: 14px; color: var(--muted); font-size: .9rem;
+}
+.spin {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-top">
-    <h1>🎢 ParkAtlas</h1>
-    <button class="add-btn" onclick="openAddModal()" title="Añadir atracción">＋</button>
+<!-- HEADER -->
+<div id="header">
+  <div class="hrow">
+    <div class="logo"><span>🎢</span>ParkAtlas</div>
+    <button id="btnAdd" onclick="openAdd()" title="Añadir atracción">＋</button>
   </div>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Buscar atracción…" oninput="render()">
+  <div class="sbox">
+    <span class="ico">🔍</span>
+    <input id="searchInput" type="text" placeholder="Buscar atracción o parque…" oninput="render()">
   </div>
-  <div class="filters-scroll" id="catFilters"></div>
-</header>
-
-<div class="park-tabs" id="parkTabs"></div>
-<div class="stats" id="stats"></div>
-<div class="grid" id="grid"></div>
-
-<!-- DETAIL MODAL -->
-<div class="overlay" id="detailOverlay" onclick="closeOnBg(event,'detailOverlay')">
-  <div class="modal" id="detailModal">
-    <div class="modal-handle"></div>
-    <div id="detailContent"></div>
-  </div>
+  <div class="scroll-row" id="catBar"></div>
 </div>
 
-<!-- ADD/EDIT MODAL -->
-<div class="overlay" id="formOverlay" onclick="closeOnBg(event,'formOverlay')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 id="formTitle">Nueva Atracción</h2>
-    <form id="attrForm" onsubmit="saveAttraction(event)">
-      <div class="form-group">
+<div id="parkBar"></div>
+<div id="stats"></div>
+<div id="loader"><div class="spin"></div>Cargando atracciones…</div>
+<div id="grid" style="display:none"></div>
+
+<!-- DETAIL -->
+<div class="overlay" id="detailOverlay" onclick="bgClose(event,'detailOverlay')">
+  <div class="sheet" id="detailSheet"></div>
+</div>
+
+<!-- FORM -->
+<div class="overlay" id="formOverlay" onclick="bgClose(event,'formOverlay')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="fh2" id="formTitle">➕ Nueva Atracción</div>
+    <div class="note">⚠️ Los datos se guardan localmente. Edita el JSON para persistir en servidor.</div>
+    <form id="attrForm" onsubmit="saveForm(event)">
+      <div class="fg">
         <label>Nombre *</label>
-        <input type="text" id="f_name" required placeholder="Nombre de la atracción">
+        <input id="f_name" type="text" required placeholder="Nombre de la atracción">
       </div>
-      <div class="form-group">
-        <label>Parque *</label>
-        <select id="f_park" required>
-          <option value="">Seleccionar parque…</option>
-          <option>Disneyland Paris</option>
-          <option>Walt Disney Studios</option>
-          <option>Universal Studios Hollywood</option>
-          <option>Universal Orlando</option>
-          <option>Puy du Fou Francia</option>
-          <option>Puy du Fou España</option>
-          <option>Futuroscope</option>
-          <option>Europa-Park</option>
-          <option>Tivoli Gardens</option>
-          <option>Efteling</option>
-          <option>Phantasialand</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Categoría</label>
-          <select id="f_cat">
-            <option>Montaña rusa</option>
-            <option>Agua</option>
-            <option>Show</option>
-            <option>Familia</option>
-            <option>Niños</option>
-            <option>Dark ride</option>
-          </select>
+      <div class="frow">
+        <div class="fg">
+          <label>Parque *</label>
+          <select id="f_park" required></select>
         </div>
-        <div class="form-group">
-          <label>Tipo de emoción</label>
-          <select id="f_thrill">
-            <option>Thrill</option>
-            <option>Family</option>
-            <option>Kids</option>
-            <option>Show</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
+        <div class="fg">
           <label>País</label>
           <select id="f_country">
-            <option>Francia</option>
-            <option>España</option>
-            <option>USA</option>
-            <option>Alemania</option>
-            <option>Dinamarca</option>
-            <option>Países Bajos</option>
-            <option>Bélgica</option>
+            <option>Francia</option><option>España</option><option>USA</option>
+            <option>Alemania</option><option>Dinamarca</option><option>Países Bajos</option><option>Bélgica</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Duración (min)</label>
-          <input type="number" id="f_duration" placeholder="5" min="1" max="120">
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label>Categoría</label>
+          <select id="f_cat">
+            <option>Montaña rusa</option><option>Agua</option><option>Show</option>
+            <option>Familia</option><option>Niños</option><option>Dark ride</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Emoción</label>
+          <select id="f_thrill">
+            <option>Thrill</option><option>Family</option><option>Kids</option><option>Show</option>
+          </select>
         </div>
       </div>
-      <div class="form-group">
-        <label>Altura mínima (cm)</label>
-        <input type="number" id="f_height" placeholder="Sin restricción" min="0" max="200">
+      <div class="frow">
+        <div class="fg">
+          <label>Altura mín. (cm)</label>
+          <input id="f_height" type="number" min="0" max="200" placeholder="0 = sin límite">
+        </div>
+        <div class="fg">
+          <label>Duración (min)</label>
+          <input id="f_duration" type="number" min="1" max="120" placeholder="—">
+        </div>
       </div>
-      <div class="form-group">
+      <div class="fg">
         <label>URL Foto</label>
-        <input type="url" id="f_photo" placeholder="https://…">
+        <input id="f_photo" type="url" placeholder="https://…">
       </div>
-      <div class="form-group">
+      <div class="fg">
         <label>Descripción</label>
         <textarea id="f_desc" rows="3" placeholder="Describe la atracción…"></textarea>
       </div>
       <input type="hidden" id="f_id">
-      <button type="submit" class="btn-primary">💾 GUARDAR</button>
-      <button type="button" class="btn-danger" id="deleteBtn" style="display:none" onclick="deleteAttraction()">🗑️ Eliminar atracción</button>
-      <button type="button" class="btn-danger" style="margin-top:6px" onclick="closeModal('formOverlay')">Cancelar</button>
+      <button type="submit" class="btn-p">💾 GUARDAR</button>
+      <button type="button" class="btn-d" id="fDeleteBtn" style="display:none" onclick="deleteItem()">🗑️ Eliminar</button>
+      <button type="button" class="btn-s" onclick="closeModal('formOverlay')">Cancelar</button>
     </form>
   </div>
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button class="nav-btn active" onclick="setView('all',this)">
-    <span class="icon">🎡</span>Todas
-  </button>
-  <button class="nav-btn" onclick="setView('fav',this)">
-    <span class="icon">❤️</span>Favoritas
-  </button>
-  <button class="nav-btn" onclick="setView('map',this)">
-    <span class="icon">🗺️</span>Parques
-  </button>
-</div>
+<!-- NAV -->
+<nav id="nav">
+  <button class="nbtn on" data-view="all" onclick="setView(this)"><span class="ni">🎡</span>Todas</button>
+  <button class="nbtn" data-view="fav" onclick="setView(this)"><span class="ni">❤️</span>Favoritas</button>
+  <button class="nbtn" data-view="map" onclick="setView(this)"><span class="ni">🗺️</span>Parques</button>
+</nav>
 
 <script>
-// ===== DATA =====
-const defaultData = [
-  // DISNEYLAND PARIS
-  {id:1,name:"Big Thunder Mountain",park:"Disneyland Paris",country:"Francia",cat:"Montaña rusa",thrill:"Thrill",height:102,duration:4,desc:"Mina de tren desenfrenada en el Lejano Oeste con túneles y giros.",photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Big_Thunder_Mountain_DLP.jpg/640px-Big_Thunder_Mountain_DLP.jpg",fav:false},
-  {id:2,name:"Pirates of the Caribbean",park:"Disneyland Paris",country:"Francia",cat:"Dark ride",thrill:"Family",height:0,duration:15,desc:"Clásico viaje en barca entre piratas y tesoros.",photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Pirates_of_the_Caribbean_DLP.jpg/640px-Pirates_of_the_Caribbean_DLP.jpg",fav:false},
-  {id:3,name:"Phantom Manor",park:"Disneyland Paris",country:"Francia",cat:"Dark ride",thrill:"Family",height:0,duration:7,desc:"La mansión encantada más oscura de todos los parques Disney.",photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Phantom_manor_DLP.jpg/640px-Phantom_manor_DLP.jpg",fav:false},
-  {id:4,name:"Space Mountain: Mission 2",park:"Disneyland Paris",country:"Francia",cat:"Montaña rusa",thrill:"Thrill",height:132,duration:3,desc:"Lanzamiento a través del cosmos con inversiones y oscuridad total.",photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Space_Mountain_Mission_2_DLP.jpg/640px-Space_Mountain_Mission_2_DLP.jpg",fav:false},
-  {id:5,name:"Indiana Jones et le Temple du Péril",park:"Disneyland Paris",country:"Francia",cat:"Montaña rusa",thrill:"Thrill",height:140,duration:2,desc:"Espiral completa de 360° entre ruinas de un templo perdido.",photo:"",fav:false},
-  {id:6,name:"Star Wars: Hyperspace Mountain",park:"Walt Disney Studios",country:"Francia",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:3,desc:"Versión galáctica de Space Mountain con efectos de Star Wars.",photo:"",fav:false},
-  {id:7,name:"Crush's Coaster",park:"Walt Disney Studios",country:"Francia",cat:"Montaña rusa",thrill:"Family",height:107,duration:5,desc:"Montaña rusa giratoria dentro del mundo de Nemo.",photo:"",fav:false},
-  {id:8,name:"RC Racer",park:"Walt Disney Studios",country:"Francia",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:2,desc:"Lanzadera pendular en forma de coche de juguete gigante.",photo:"",fav:false},
+/* ─────────────────────────────────────────
+   CONFIGURACIÓN
+   Cambia JSON_URL por la ruta real a tu archivo atracciones.json
+   ───────────────────────────────────────── */
+const JSON_URL = 'atracciones.json';
 
-  // UNIVERSAL
-  {id:9,name:"Harry Potter and the Forbidden Journey",park:"Universal Studios Hollywood",country:"USA",cat:"Dark ride",thrill:"Thrill",height:122,duration:5,desc:"Vuela junto a Harry sobre Hogwarts con efectos de movimiento total.",photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Forbidden_Journey.jpg/640px-Forbidden_Journey.jpg",fav:false},
-  {id:10,name:"Jurassic World — The Ride",park:"Universal Studios Hollywood",country:"USA",cat:"Agua",thrill:"Thrill",height:107,duration:6,desc:"Bajada de 25 metros entre dinosaurios con empapante final.",photo:"",fav:false},
-  {id:11,name:"Revenge of the Mummy",park:"Universal Orlando",country:"USA",cat:"Montaña rusa",thrill:"Thrill",height:122,duration:3,desc:"Indoor coaster con lanzamiento en oscuridad y efectos de fuego.",photo:"",fav:false},
-  {id:12,name:"Hagrid's Magical Creatures",park:"Universal Orlando",country:"USA",cat:"Dark ride",thrill:"Family",height:122,duration:10,desc:"El mejor tour de criaturas mágicas del mundo de Harry Potter.",photo:"",fav:false},
+const CATS  = ['Todas','Montaña rusa','Agua','Show','Familia','Niños','Dark ride'];
+const PARKS = ['Todos','Disneyland Paris','Walt Disney Studios',
+               'Universal Studios Hollywood','Universal Orlando',
+               'Puy du Fou Francia','Puy du Fou España','Futuroscope',
+               'Europa-Park','Tivoli Gardens','Efteling','Phantasialand'];
 
-  // PUY DU FOU
-  {id:13,name:"Le Signe du Triomphe",park:"Puy du Fou Francia",country:"Francia",cat:"Show",thrill:"Show",height:0,duration:25,desc:"Épico espectáculo de gladiadores en un estadio romano para 6.000 espectadores.",photo:"",fav:false},
-  {id:14,name:"Le Bal des Oiseaux Fantômes",park:"Puy du Fou Francia",country:"Francia",cat:"Show",thrill:"Show",height:0,duration:25,desc:"Vuelo de aves rapaces nocturnas en un castillo medieval iluminado.",photo:"",fav:false},
-  {id:15,name:"Cinéscénie",park:"Puy du Fou Francia",country:"Francia",cat:"Show",thrill:"Show",height:0,duration:90,desc:"El mayor espectáculo nocturno del mundo con 1.200 actores.",photo:"",fav:false},
-  {id:16,name:"El Sueño de Toledo",park:"Puy du Fou España",country:"España",cat:"Show",thrill:"Show",height:0,duration:30,desc:"Espectáculo acuático y ecuestre en la España medieval.",photo:"",fav:false},
-  {id:17,name:"El Último Cantar",park:"Puy du Fou España",country:"España",cat:"Show",thrill:"Show",height:0,duration:20,desc:"Combate de caballería y hazañas de la Reconquista.",photo:"",fav:false},
+const CAT_EMOJI = {
+  'Montaña rusa':'🎢','Agua':'💧','Show':'🎭',
+  'Familia':'👨‍👩‍👧','Niños':'🎈','Dark ride':'🌑'
+};
+const ce = c => CAT_EMOJI[c] || '🎡';
 
-  // FUTUROSCOPE
-  {id:18,name:"Arthur, l'Aventure 4D",park:"Futuroscope",country:"Francia",cat:"Dark ride",thrill:"Family",height:0,duration:12,desc:"Aventura en 4D por el mundo de Arthur y los Minimoys.",photo:"",fav:false},
-  {id:19,name:"Chasseurs de Tornades",park:"Futuroscope",country:"Francia",cat:"Show",thrill:"Thrill",height:0,duration:15,desc:"Cabinas dinámicas en el corazón de un tornado.",photo:"",fav:false},
-  {id:20,name:"La Machine à Voyager dans le Temps",park:"Futuroscope",country:"Francia",cat:"Dark ride",thrill:"Family",height:0,duration:15,desc:"Viaje en el tiempo con pantallas gigantes y efectos sensoriales.",photo:"",fav:false},
-
-  // EUROPA-PARK
-  {id:21,name:"Silver Star",park:"Europa-Park",country:"Alemania",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:3,desc:"La hipercoaster más alta de Europa con caídas de 73 metros.",photo:"",fav:false},
-  {id:22,name:"Blue Fire Megacoaster",park:"Europa-Park",country:"Alemania",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:3,desc:"Lanzamiento magnético y cuatro inversiones a 100 km/h.",photo:"",fav:false},
-  {id:23,name:"Wodan Timburcoaster",park:"Europa-Park",country:"Alemania",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:2,desc:"Montaña rusa de madera entre árboles en una villa vikinga.",photo:"",fav:false},
-  {id:24,name:"Mack Rides VR Coaster",park:"Europa-Park",country:"Alemania",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:3,desc:"Realidad virtual sincronizada con el movimiento real del coche.",photo:"",fav:false},
-
-  // TIVOLI
-  {id:25,name:"Rutschebanen",park:"Tivoli Gardens",country:"Dinamarca",cat:"Montaña rusa",thrill:"Family",height:0,duration:2,desc:"Montaña rusa de madera de 1914, icono histórico del parque.",photo:"",fav:false},
-  {id:26,name:"Daemonen",park:"Tivoli Gardens",country:"Dinamarca",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:2,desc:"Invertida con tres bucles y ambiente oscuro.",photo:"",fav:false},
-  {id:27,name:"Piraten",park:"Tivoli Gardens",country:"Dinamarca",cat:"Agua",thrill:"Family",height:95,duration:4,desc:"Atracción de barcos con caída de agua pirata.",photo:"",fav:false},
-
-  // EFTELING
-  {id:28,name:"Baron 1898",park:"Efteling",country:"Países Bajos",cat:"Agua",thrill:"Thrill",height:130,duration:4,desc:"Caída libre vertical de 37 metros con historia de minería en steampunk.",photo:"",fav:false},
-  {id:29,name:"Symbolica",park:"Efteling",country:"Países Bajos",cat:"Dark ride",thrill:"Family",height:0,duration:13,desc:"Palacio mágico con vehículos autónomos y efectos espectaculares.",photo:"",fav:false},
-  {id:30,name:"Joris en de Draak",park:"Efteling",country:"Países Bajos",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:2,desc:"Duelo de dos montañas rusas de madera simultáneas.",photo:"",fav:false},
-  {id:31,name:"Fata Morgana",park:"Efteling",country:"Países Bajos",cat:"Dark ride",thrill:"Family",height:0,duration:12,desc:"Viaje en barca por las Mil y Una Noches.",photo:"",fav:false},
-
-  // PHANTASIALAND
-  {id:32,name:"Taron",park:"Phantasialand",country:"Bélgica",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:3,desc:"El lanzador más rápido de Europa con dos disparos y 117 km/h.",photo:"",fav:false},
-  {id:33,name:"Black Mamba",park:"Phantasialand",country:"Bélgica",cat:"Montaña rusa",thrill:"Thrill",height:130,duration:2,desc:"Invertida suspendida en un ambiente africano inmersivo.",photo:"",fav:false},
-  {id:34,name:"Klugheim",park:"Phantasialand",country:"Bélgica",cat:"Montaña rusa",thrill:"Thrill",height:120,duration:3,desc:"Área temática vikinga con Taron como atracción estrella.",photo:"",fav:false},
-  {id:35,name:"Chiapas",park:"Phantasialand",country:"Bélgica",cat:"Agua",thrill:"Family",height:100,duration:5,desc:"Descenso fluvial con historia azteca y caída final espectacular.",photo:"",fav:false},
-];
-
-let attractions = JSON.parse(localStorage.getItem('parkAtlas') || 'null') || defaultData;
-let favorites = JSON.parse(localStorage.getItem('parkAtlasFav') || '[]');
-let activeView = 'all';
+/* ── STATE ── */
+let data       = [];
+let activeCat  = 'Todas';
 let activePark = 'Todos';
-let activeCat = 'Todas';
-let editId = null;
+let activeView = 'all';
+let favs       = JSON.parse(localStorage.getItem('pa_favs') || '[]');
+let editId     = null;
 
-const CATS = ['Todas','Montaña rusa','Agua','Show','Familia','Niños','Dark ride'];
-const PARKS = ['Todos','Disneyland Paris','Walt Disney Studios','Universal Studios Hollywood','Universal Orlando','Puy du Fou Francia','Puy du Fou España','Futuroscope','Europa-Park','Tivoli Gardens','Efteling','Phantasialand'];
+/* ── LOAD JSON ── */
+async function loadJSON() {
+  try {
+    const r = await fetch(JSON_URL);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    data = await r.json();
+  } catch(e) {
+    // fallback: intenta localStorage por si hay datos guardados
+    const cached = localStorage.getItem('pa_data');
+    if (cached) {
+      data = JSON.parse(cached);
+      showToast('⚠️ Usando datos en caché');
+    } else {
+      document.getElementById('loader').innerHTML =
+        '<div style="font-size:2rem">😞</div><p>No se pudo cargar atracciones.json</p><p style="font-size:.78rem;margin-top:6px">Asegúrate de que el JSON está en la misma carpeta</p>';
+      return;
+    }
+  }
+  // merge con añadidos locales
+  const local = JSON.parse(localStorage.getItem('pa_added') || '[]');
+  data = [...local, ...data];
 
-function save() {
-  localStorage.setItem('parkAtlas', JSON.stringify(attractions));
-  localStorage.setItem('parkAtlasFav', JSON.stringify(favorites));
-}
-
-function isFav(id) { return favorites.includes(id); }
-
-function toggleFav(id, e) {
-  e.stopPropagation();
-  if (isFav(id)) favorites = favorites.filter(f=>f!==id);
-  else favorites.push(id);
-  save(); render();
-}
-
-function setView(v, btn) {
-  activeView = v;
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('grid').style.display   = 'grid';
+  buildBars();
   render();
 }
 
-function buildFilters() {
-  const catEl = document.getElementById('catFilters');
-  catEl.innerHTML = CATS.map(c=>`
-    <button class="chip ${activeCat===c?'active':''}" onclick="setCat('${c}')">${c}</button>
-  `).join('');
+/* ── BARS ── */
+function buildBars() {
+  // categorías
+  document.getElementById('catBar').innerHTML = CATS.map(c =>
+    `<button class="chip ${activeCat===c?'on':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
 
-  const parkEl = document.getElementById('parkTabs');
-  parkEl.innerHTML = PARKS.map(p=>`
-    <button class="park-tab ${activePark===p?'active':''}" onclick="setPark('${p}')">${p}</button>
-  `).join('');
+  // parques
+  document.getElementById('parkBar').innerHTML = PARKS.map(p =>
+    `<button class="ptab ${activePark===p?'on':''}" onclick="setPark('${p}')">${p}</button>`
+  ).join('');
+
+  // select parque en formulario
+  const sel = document.getElementById('f_park');
+  sel.innerHTML = PARKS.slice(1).map(p => `<option>${p}</option>`).join('');
 }
 
-function setCat(c) { activeCat=c; render(); }
-function setPark(p) { activePark=p; render(); }
+function setCat(c)  { activeCat  = c; buildBars(); render(); }
+function setPark(p) { activePark = p; buildBars(); render(); }
 
-function getFiltered() {
+function setView(btn) {
+  activeView = btn.dataset.view;
+  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
+
+/* ── FILTER ── */
+function filtered() {
   const q = document.getElementById('searchInput').value.toLowerCase();
-  return attractions.filter(a => {
-    if (activeView==='fav' && !isFav(a.id)) return false;
-    if (activePark!=='Todos' && a.park!==activePark) return false;
-    if (activeCat!=='Todas' && a.cat!==activeCat) return false;
-    if (q && !a.name.toLowerCase().includes(q) && !a.park.toLowerCase().includes(q) && !a.desc.toLowerCase().includes(q)) return false;
+  return data.filter(a => {
+    if (activeView === 'fav' && !favs.includes(a.id)) return false;
+    if (activePark !== 'Todos' && a.park !== activePark) return false;
+    if (activeCat  !== 'Todas' && a.cat  !== activeCat)  return false;
+    if (q && !a.name.toLowerCase().includes(q) &&
+             !a.park.toLowerCase().includes(q) &&
+             !(a.desc||'').toLowerCase().includes(q)) return false;
     return true;
   });
 }
 
-function thrillClass(t) {
-  const m = {Thrill:'thrill',Family:'family',Show:'show',Kids:'kids'};
-  return m[t]||'family';
-}
-
-function catEmoji(cat) {
-  const m = {'Montaña rusa':'🎢','Agua':'💧','Show':'🎭','Familia':'👨‍👩‍👧','Niños':'🎈','Dark ride':'🌑'};
-  return m[cat]||'🎡';
-}
-
+/* ── RENDER ── */
 function render() {
-  buildFilters();
-  const filtered = getFiltered();
-  document.getElementById('stats').textContent = `${filtered.length} atracciones`;
+  const list = filtered();
+
+  document.getElementById('stats').innerHTML =
+    `<span>${list.length} atracciones · ${data.length} total</span><span class="sync-dot"></span>`;
+
   const grid = document.getElementById('grid');
-  if (!filtered.length) {
-    grid.innerHTML = `<div class="empty"><div class="empty-icon">🎠</div><p>No se encontraron atracciones</p></div>`;
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty"><div style="font-size:3rem">🎠</div><p>Sin resultados</p></div>`;
     return;
   }
-  grid.innerHTML = filtered.map(a=>`
+
+  grid.innerHTML = list.map(a => `
     <div class="card" onclick="openDetail(${a.id})">
-      <div class="card-img">
-        ${a.photo ? `<img src="${a.photo}" alt="${a.name}" onerror="this.parentNode.textContent='${catEmoji(a.cat)}'">` : catEmoji(a.cat)}
+      <div class="cimg">
+        ${a.photo
+          ? `<img src="${a.photo}" alt="${a.name}" onerror="this.style.display='none'">`
+          : ''}
+        <span style="z-index:1;position:relative">${ce(a.cat)}</span>
+        <span class="cbadge">${a.cat}</span>
+        <button class="cfav" onclick="toggleFav(${a.id},event)">${favs.includes(a.id)?'❤️':'🤍'}</button>
       </div>
-      <span class="card-badge">${a.cat}</span>
-      <button class="card-fav" onclick="toggleFav(${a.id},event)">${isFav(a.id)?'❤️':'🤍'}</button>
-      <div class="card-body">
-        <div class="card-name">${a.name}</div>
-        <div class="card-park">📍 ${a.park}</div>
-        <div class="card-tags">
-          <span class="tag tag-${thrillClass(a.thrill)}">${a.thrill}</span>
-          ${a.height>0?`<span class="tag tag-thrill">📏 ${a.height}cm</span>`:''}
-          ${a.duration?`<span class="tag tag-family">⏱ ${a.duration}min</span>`:''}
+      <div class="cbody">
+        <div class="cname">${a.name}</div>
+        <div class="cpark">📍 ${a.park}</div>
+        <div class="ctags">
+          <span class="tag t${a.thrill}">${a.thrill}</span>
+          ${a.height>0 ? `<span class="tag tThrill">📏${a.height}cm</span>` : ''}
+          ${a.duration>0 ? `<span class="tag tFamily">⏱${a.duration}m</span>` : ''}
         </div>
       </div>
     </div>
   `).join('');
 }
 
+/* ── DETAIL ── */
 function openDetail(id) {
-  const a = attractions.find(x=>x.id===id);
+  const a = data.find(x => x.id === id);
   if (!a) return;
-  const c = document.getElementById('detailContent');
-  c.innerHTML = `
-    <div class="detail-img">
-      ${a.photo ? `<img src="${a.photo}" alt="${a.name}" onerror="this.parentNode.textContent='${catEmoji(a.cat)}'">` : catEmoji(a.cat)}
+  const faved = favs.includes(id);
+
+  document.getElementById('detailSheet').innerHTML = `
+    <div class="handle"></div>
+    <div class="dimg">
+      ${a.photo ? `<img src="${a.photo}" alt="${a.name}" onerror="this.style.display='none'">` : ''}
+      ${a.photo ? '' : ce(a.cat)}
     </div>
-    <div class="detail-title">${a.name}</div>
-    <div class="detail-park">📍 ${a.park} · ${a.country}</div>
-    <p class="detail-desc">${a.desc||'Sin descripción.'}</p>
-    <div class="detail-meta">
-      <div class="meta-item">
-        <div class="meta-label">Categoría</div>
-        <div class="meta-val">${a.cat}</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">Emoción</div>
-        <div class="meta-val">${a.thrill}</div>
-      </div>
-      ${a.height>0?`<div class="meta-item"><div class="meta-label">Altura mín.</div><div class="meta-val">${a.height} cm</div></div>`:''}
-      ${a.duration?`<div class="meta-item"><div class="meta-label">Duración</div><div class="meta-val">${a.duration} min</div></div>`:''}
+    <div class="dtitle">${a.name}</div>
+    <div class="dpark">📍 ${a.park} · ${a.country||''}</div>
+    <p class="ddesc">${a.desc || 'Sin descripción.'}</p>
+    <div class="dmeta">
+      <div class="dmeta-item"><div class="dlabel">Categoría</div><div class="dval">${a.cat}</div></div>
+      <div class="dmeta-item"><div class="dlabel">Emoción</div><div class="dval">${a.thrill}</div></div>
+      ${a.height>0  ? `<div class="dmeta-item"><div class="dlabel">Altura mín.</div><div class="dval">${a.height} cm</div></div>` : ''}
+      ${a.duration>0? `<div class="dmeta-item"><div class="dlabel">Duración</div><div class="dval">${a.duration} min</div></div>` : ''}
     </div>
-    <div class="action-row">
-      <button class="btn-edit" onclick="openEditModal(${a.id})">✏️ Editar</button>
-      <button class="btn-del" onclick="confirmDelete(${a.id})">🗑️ Borrar</button>
+    <div class="dactions">
+      <button class="btn-g" style="flex:1" onclick="openEdit(${id})">✏️ Editar</button>
+      <button class="btn-d" style="flex:1" onclick="confirmDelete(${id})">🗑️ Borrar</button>
     </div>
-    <button class="btn-primary" style="margin-top:10px" onclick="toggleFav(${a.id},{stopPropagation:()=>{}}); render(); closeModal('detailOverlay')">
-      ${isFav(id)?'💔 Quitar de favoritas':'❤️ Añadir a favoritas'}
+    <button class="btn-p" onclick="toggleFav(${id});closeModal('detailOverlay')">
+      ${faved ? '💔 Quitar de favoritas' : '❤️ Añadir a favoritas'}
     </button>
   `;
   document.getElementById('detailOverlay').classList.add('open');
 }
 
-function confirmDelete(id) {
-  if (confirm('¿Eliminar esta atracción?')) {
-    attractions = attractions.filter(a=>a.id!==id);
-    save(); closeModal('detailOverlay'); render();
-    toast('Atracción eliminada');
-  }
+/* ── FAVS ── */
+function toggleFav(id, e) {
+  if (e) e.stopPropagation();
+  favs = favs.includes(id) ? favs.filter(f=>f!==id) : [...favs, id];
+  localStorage.setItem('pa_favs', JSON.stringify(favs));
+  render();
 }
 
-function openAddModal() {
+/* ── CRUD ── */
+function openAdd() {
   editId = null;
   document.getElementById('attrForm').reset();
   document.getElementById('f_id').value = '';
-  document.getElementById('formTitle').textContent = 'Nueva Atracción';
-  document.getElementById('deleteBtn').style.display='none';
+  document.getElementById('formTitle').textContent = '➕ Nueva Atracción';
+  document.getElementById('fDeleteBtn').style.display = 'none';
   document.getElementById('formOverlay').classList.add('open');
 }
 
-function openEditModal(id) {
-  const a = attractions.find(x=>x.id===id);
+function openEdit(id) {
+  const a = data.find(x => x.id === id);
   if (!a) return;
   editId = id;
-  document.getElementById('formTitle').textContent = 'Editar Atracción';
-  document.getElementById('f_name').value = a.name;
-  document.getElementById('f_park').value = a.park;
-  document.getElementById('f_cat').value = a.cat;
-  document.getElementById('f_thrill').value = a.thrill;
-  document.getElementById('f_country').value = a.country;
-  document.getElementById('f_duration').value = a.duration||'';
-  document.getElementById('f_height').value = a.height||'';
-  document.getElementById('f_photo').value = a.photo||'';
-  document.getElementById('f_desc').value = a.desc||'';
-  document.getElementById('f_id').value = id;
-  document.getElementById('deleteBtn').style.display='block';
+  document.getElementById('formTitle').textContent = '✏️ Editar Atracción';
+  document.getElementById('f_name').value     = a.name;
+  document.getElementById('f_park').value     = a.park;
+  document.getElementById('f_country').value  = a.country || 'Francia';
+  document.getElementById('f_cat').value      = a.cat;
+  document.getElementById('f_thrill').value   = a.thrill;
+  document.getElementById('f_height').value   = a.height || '';
+  document.getElementById('f_duration').value = a.duration || '';
+  document.getElementById('f_photo').value    = a.photo || '';
+  document.getElementById('f_desc').value     = a.desc || '';
+  document.getElementById('f_id').value       = id;
+  document.getElementById('fDeleteBtn').style.display = 'block';
   closeModal('detailOverlay');
   document.getElementById('formOverlay').classList.add('open');
 }
 
-function saveAttraction(e) {
+function saveForm(e) {
   e.preventDefault();
-  const a = {
-    name: document.getElementById('f_name').value.trim(),
-    park: document.getElementById('f_park').value,
-    cat: document.getElementById('f_cat').value,
-    thrill: document.getElementById('f_thrill').value,
-    country: document.getElementById('f_country').value,
-    duration: parseInt(document.getElementById('f_duration').value)||0,
-    height: parseInt(document.getElementById('f_height').value)||0,
-    photo: document.getElementById('f_photo').value.trim(),
-    desc: document.getElementById('f_desc').value.trim(),
-    fav: false
+  const item = {
+    id:       editId || Date.now(),
+    name:     document.getElementById('f_name').value.trim(),
+    park:     document.getElementById('f_park').value,
+    country:  document.getElementById('f_country').value,
+    cat:      document.getElementById('f_cat').value,
+    thrill:   document.getElementById('f_thrill').value,
+    height:   parseInt(document.getElementById('f_height').value)   || 0,
+    duration: parseInt(document.getElementById('f_duration').value) || 0,
+    photo:    document.getElementById('f_photo').value.trim(),
+    desc:     document.getElementById('f_desc').value.trim(),
   };
-  const id = parseInt(document.getElementById('f_id').value);
-  if (id) {
-    const idx = attractions.findIndex(x=>x.id===id);
-    attractions[idx] = {...attractions[idx], ...a};
-    toast('Atracción actualizada ✓');
+
+  if (editId) {
+    const idx = data.findIndex(x => x.id === editId);
+    data[idx] = item;
+    showToast('✏️ Atracción actualizada');
   } else {
-    a.id = Date.now();
-    attractions.unshift(a);
-    toast('Atracción añadida ✓');
+    data.unshift(item);
+    // guarda los añadidos localmente para persistir entre recargas
+    const local = JSON.parse(localStorage.getItem('pa_added') || '[]');
+    localStorage.setItem('pa_added', JSON.stringify([item, ...local]));
+    showToast('✅ Atracción añadida');
   }
-  save(); closeModal('formOverlay'); render();
+
+  closeModal('formOverlay');
+  render();
 }
 
-function deleteAttraction() {
+function deleteItem() {
   const id = parseInt(document.getElementById('f_id').value);
-  if (id && confirm('¿Eliminar esta atracción?')) {
-    attractions = attractions.filter(a=>a.id!==id);
-    save(); closeModal('formOverlay'); render();
-    toast('Eliminada ✓');
-  }
+  confirmDelete(id, true);
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+function confirmDelete(id, fromForm = false) {
+  if (!confirm('¿Eliminar esta atracción?')) return;
+  data = data.filter(a => a.id !== id);
+  // limpiar de locales también
+  const local = JSON.parse(localStorage.getItem('pa_added') || '[]');
+  localStorage.setItem('pa_added', JSON.stringify(local.filter(a => a.id !== id)));
+  if (fromForm) closeModal('formOverlay');
+  closeModal('detailOverlay');
+  render();
+  showToast('🗑️ Eliminada');
 }
 
-function closeOnBg(e, id) {
-  if (e.target.id===id) closeModal(id);
-}
+/* ── UTILS ── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function bgClose(e, id) { if (e.target.id === id) closeModal(id); }
 
-function toast(msg) {
+let toastTimer;
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// INIT
-render();
+/* ── INIT ── */
+loadJSON();
 </script>
 </body>
 </html>
