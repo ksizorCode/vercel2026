@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Notificaciones JS</title>
 
 <base href="https://vercel2026-mu.vercel.app/notificaciones/" />
@@ -15,6 +15,11 @@
     <link rel="manifest" href="icon/site.webmanifest" />
 
     <style>
+html, body {
+    touch-action: manipulation;
+}
+
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
